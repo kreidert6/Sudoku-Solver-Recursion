@@ -116,7 +116,11 @@ if __name__ == "__main__":
             (9, "p11.txt", "p11Sol.txt"),
             (9, "p12.txt", "p12Sol.txt"),
             (16, "p13.txt", "p13Sol.txt"),
-            (25, "p14.txt", "p14Sol.txt")]
+            (25, "p14.txt", "p14Sol.txt"),
+            (9, "p15.txt", "p15Sol.txt"),
+            (16, "p16.txt", "p16Sol.txt"),
+            (25, "p17.txt", "p17Sol.txt"),
+            (25, "p18.txt", "p18Sol.txt")]
 
     # Initialize some things
     num_tests = 0
