@@ -3,6 +3,7 @@
 # Date: 
 # Description: 
 import math
+import copy
 
 def solve(size, filename):
     """
@@ -32,14 +33,34 @@ def solve(size, filename):
     #part 2 --> set up recursion and solve
 
     #create dictonary of sets to be used later
-
+    row = 1
+    col = 1
 
     sets = load_set_dicts(dimension,locations,SUDOKU_OFFSET)
-    set_dict_rows = sets[0]
-    set_dict_cols = sets[1]
-    set_dict_sub_square = sets[2]
-    print(f"set dict rows {set_dict_rows}\nset dict cols {set_dict_cols}\nset dict sub squares {set_dict_sub_square}")
+    possible_rows_dict = sets[0]
+    possible_cols_dict = sets[1]
+    possible_sub_square_dict = sets[2]
+
+
+
+    current_location = get_next_row_col(sudoku_array, (row, col), SUDOKU_OFFSET)
+    row = current_location[0]
+    col = current_location[1]
+
+    sub_sqr_num = get_subsquare(dimension, row, col)
+
+    possible_vals = get_poss_vals(possible_rows_dict, possible_cols_dict,possible_sub_square_dict,row,col,sub_sqr_num)
+
+
+
+    print(solve_recursive(row,col,sudoku_array,SUDOKU_OFFSET, possible_rows_dict, possible_cols_dict,possible_sub_square_dict,0))
+    
+
+
+
+    print(f"set dict rows {possible_rows_dict}\nset dict cols {possible_cols_dict}\nset dict sub squares {possible_sub_square_dict}")
     print(f"subsquare {get_subsquare(9,1,4)}")
+    print("sudoku array", sudoku_array)
     pass
 
 def load_set_dicts(dimension, locations, sudoku_offset):
@@ -84,7 +105,7 @@ def get_subsquare(dimension,row,col):
 
     return subsquare_num
     
-def solve_recursive(row,col,sudoku_array,sudoku_offset, possible_rows_dict, possible_cols_dict,possible_sub_square_dict,num_nodes,solution_list):
+def solve_recursive(row,col,sudoku_array,sudoku_offset, possible_rows_dict, possible_cols_dict,possible_sub_square_dict,num_nodes):
     """
     This method is the recursive method for solve
     @params
@@ -99,26 +120,56 @@ def solve_recursive(row,col,sudoku_array,sudoku_offset, possible_rows_dict, poss
     This method will return a tuple with sudoku_array as index 0 and num nodes as index 1
     """
 
-    list_len = len(sudoku_array)
+    dimension = len(sudoku_array)
     num_nodes+=1
     #last iteration
     #when x==list_len and y==1 we will iterate that time and call with y=0
-    if(row==list_len and col==list_len):
-        solution_list.append(sudoku_array)
-        return solution_list,num_nodes
-    else:
-        possible_vals = []
-        if()
     
+
+    if(row==dimension and col==dimension):
+        # solution_list.append(sudoku_array)
+        #return solution_list,num_nodes
+        return sudoku_array, num_nodes
+    else:
+
+        sub_sqr_num = get_subsquare(dimension, row, col)
+        possible_vals = get_poss_vals(possible_rows_dict, possible_cols_dict, possible_sub_square_dict, row, col, sub_sqr_num)
+        
+        next = get_next_row_col(sudoku_array, (row,col), sudoku_offset )
+        
+        next_row = next[0]
+        next_col = next[1]
+
+        
+        for val in possible_vals:
+
+            sudoku_copy = copy.deepcopy(sudoku_array)
+            sudoku_copy[row - sudoku_offset][col - sudoku_offset] = val
+            
+
+            possible_rows_dict[row].discard(val)
+            possible_cols_dict[col].discard(val)
+            possible_sub_square_dict[sub_sqr_num].discard(val)
+
+            
+            temp = solve_recursive(next_row,next_col,sudoku_copy,sudoku_offset, possible_rows_dict, possible_cols_dict,possible_sub_square_dict,num_nodes)
+    
+            if temp:
+                return temp
+            
+        return None
+
+
 
 def get_poss_vals(possible_rows_dict, possible_cols_dict,possible_sub_square_dict,row,col,sub_sqr_num):
     """
     This method gets the possible values to later be iterated over.
-    This method returns a list of all possible values can be at row, col
+    This method returns a set of all possible values can be at row, col
     """
-    possible_vals = []
-    min_choices_list = []
-    if(len(possible_cols_dict[col])<len(possible_rows_dict[row])and len(possible_cols_dict[col])<)
+  
+    return possible_rows_dict[row].intersection(possible_cols_dict[col], possible_sub_square_dict[sub_sqr_num])
+
+    
 
 
 def load_sudoku_array(filename,sudoku_offset,locations):
@@ -167,6 +218,37 @@ def get_dimension(locations):
         if(pair[0]>dimension):
             dimension = pair[0]
     return dimension
+
+
+def get_next_row_col(sudoku_array, last_insert, sudoku_offset):
+    found = False
+    row = last_insert[0] 
+    col = last_insert[1]  
+
+    if row == 1 and col == 1 and sudoku_array[row - sudoku_offset][col - sudoku_offset] == None:
+        return (row,col)
+
+    while not found:
+        
+        if col != 9:
+            col += 1
+            cur = sudoku_array[row - sudoku_offset][ col - sudoku_offset]
+        else: 
+            row += 1
+            col = 1
+            cur = sudoku_array[row - sudoku_offset][col - sudoku_offset]
+
+        if cur == None:
+            found = True
+    
+    return (row,col)
+
+    
+
+        
+
+
+
 
 if __name__ == "__main__":
     SIZE = 9
