@@ -39,7 +39,7 @@ def solve(size, filename):
     set_dict_cols = sets[1]
     set_dict_sub_square = sets[2]
     print(f"set dict rows {set_dict_rows}\nset dict cols {set_dict_cols}\nset dict sub squares {set_dict_sub_square}")
-    print(f"subsquare {get_subsquare(9,4,7)}")
+    print(f"subsquare {get_subsquare(9,1,4)}")
     pass
 
 def load_set_dicts(dimension, locations, sudoku_offset):
@@ -82,24 +82,9 @@ def get_subsquare(dimension,row,col):
     # Determine the subsquare number based on the row and column
     subsquare_num = subsquare_row * (dimension // subsquare_size) + subsquare_col + 1
 
-    
     return subsquare_num
-
-    # subsquare_row = ((y - 1) // subsquare_size)+1
-    # subsquare_col = ((x - 1) // subsquare_size)+1
-
-    # subquare_num = 0
-    # if(subsquare_col==1):
-    #     subquare_num = subsquare_row
-    # elif(subsquare_col==2):
-    #     subquare_num = subsquare_row+3
-    # else:
-    #     subquare_num = subsquare_row+6
     
-    # return subquare_num
-
-    
-def solve_recursive(x,y,sudoku_array,sudoku_offset, possible_x, possible_y,possible_square,num_nodes,dimension_sqrt):
+def solve_recursive(row,col,sudoku_array,sudoku_offset, possible_rows_dict, possible_cols_dict,possible_sub_square_dict,num_nodes,solution_list):
     """
     This method is the recursive method for solve
     @params
@@ -115,13 +100,25 @@ def solve_recursive(x,y,sudoku_array,sudoku_offset, possible_x, possible_y,possi
     """
 
     list_len = len(sudoku_array)
-
+    num_nodes+=1
     #last iteration
     #when x==list_len and y==1 we will iterate that time and call with y=0
-    if(x==list_len and y==0):
-        return sudoku_array,num_nodes
+    if(row==list_len and col==list_len):
+        solution_list.append(sudoku_array)
+        return solution_list,num_nodes
+    else:
+        possible_vals = []
+        if()
     
-    
+
+def get_poss_vals(possible_rows_dict, possible_cols_dict,possible_sub_square_dict,row,col,sub_sqr_num):
+    """
+    This method gets the possible values to later be iterated over.
+    This method returns a list of all possible values can be at row, col
+    """
+    possible_vals = []
+    min_choices_list = []
+    if(len(possible_cols_dict[col])<len(possible_rows_dict[row])and len(possible_cols_dict[col])<)
 
 
 def load_sudoku_array(filename,sudoku_offset,locations):
