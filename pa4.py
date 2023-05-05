@@ -67,15 +67,15 @@ def solve(size, filename):
 
     #print(solve_recursive(row,col,sudoku_array,SUDOKU_OFFSET, possible_rows_dict, possible_cols_dict,possible_sub_square_dict,0))
 
-    # if dimension == 9:
+    if dimension == 9:
 
-    #     solution, num_nodes = solve_recursive(sudoku_array, num_nodes, sudoku_nine_elements)
-    # elif dimension == 16:
-    #     solution, num_nodes = solve_recursive(sudoku_array, num_nodes, sudoku_sixteen_elements)
-    # else:
-    #     solution, num_nodes = solve_recursive(sudoku_array, num_nodes, sudoku_twentyfive_elements)
+        solution, num_nodes = solve_recursive(sudoku_array, num_nodes, sudoku_nine_elements)
+    elif dimension == 16:
+        solution, num_nodes = solve_recursive(sudoku_array, num_nodes, sudoku_sixteen_elements)
+    else:
+        solution, num_nodes = solve_recursive(sudoku_array, num_nodes, sudoku_twentyfive_elements)
 
-    solution, num_nodes = solve_recursive(sudoku_array, num_nodes)
+    
     
     print(solution)
     print(sudoku_array)
@@ -101,8 +101,6 @@ def check_if_valid(sudoku_array, attempt, row, col):
     
     for i in range(len(row_values)):
         col_values.append(sudoku_array[i][col])
-    
-
     if attempt in row_values or attempt in col_values:
         return False
     
@@ -171,7 +169,7 @@ def get_subsquare(dimension,row,col):
     return subsquare_num
     
 # def solve_recursive(row,col,sudoku_array,sudoku_offset, possible_rows_dict, possible_cols_dict,possible_sub_square_dict,num_nodes):
-def solve_recursive(sudoku_array, num_nodes):
+def solve_recursive(sudoku_array, num_nodes, elements):
     """
     This method is the recursive method for solve
     @params
@@ -197,14 +195,14 @@ def solve_recursive(sudoku_array, num_nodes):
     if row is None:  
         return True, num_nodes[0] 
 
-    for attempt in range(1, dimension+1):
+    for attempt in elements:
         
        
 
         if check_if_valid(sudoku_array, attempt, row, col):
             sudoku_array[row][col] = attempt
 
-            if solve_recursive(sudoku_array, num_nodes)[0]:
+            if solve_recursive(sudoku_array, num_nodes, elements)[0]:
                 return True, num_nodes[0]
             
         sudoku_array[row][col] = None
@@ -292,7 +290,7 @@ def get_locations(filename):
     with open(filename, 'r') as f:
         for line in f:
             line_list = line.split()
-            locations[int(line_list[0]),int(line_list[1])] = int(line_list[2])
+            locations[int(line_list[0]),int(line_list[1])] = line_list[2]
     return locations
 
 def get_dimension(locations):
@@ -350,7 +348,7 @@ def get_next_row_col(sudoku_array, offset):
 
 if __name__ == "__main__":
     SIZE = 9
-    FILENAME = "p1.txt"
+    FILENAME = "p16.txt"
     solution = solve(SIZE, FILENAME)
     # if not solution[0]:
     #     print("No solution")
