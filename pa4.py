@@ -18,8 +18,8 @@ def solve(size, filename):
     SUDOKU_OFFSET = 1
     sudoku_twentyfive_elements = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 
         'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y']
-    sudoku_nineteen_elements = [1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F', 'G']
-    sudoku_nine_elements = [1,2,3,4,5,6,7,8,9]
+    sudoku_sixteen_elements = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G']
+    sudoku_nine_elements = ['1','2','3','4','5','6','7','8','9']
 
     #part 1-->parse data into a 2d matrix
 
@@ -43,25 +43,90 @@ def solve(size, filename):
 
 
 
-    current_location = get_next_row_col(sudoku_array, (row, col), SUDOKU_OFFSET)
-    row = current_location[0]
-    col = current_location[1]
+    # current_location = get_next_row_col(sudoku_array, (row, col), SUDOKU_OFFSET)
+    # row = current_location[0]
+    # col = current_location[1]
+    next_box = get_next_row_col(sudoku_array, SUDOKU_OFFSET)
+    row = next_box[0]
+    col = next_box[1]
+    
 
     sub_sqr_num = get_subsquare(dimension, row, col)
 
-    possible_vals = get_poss_vals(possible_rows_dict, possible_cols_dict,possible_sub_square_dict,row,col,sub_sqr_num)
+    #possible_vals = get_poss_vals(possible_rows_dict, possible_cols_dict,possible_sub_square_dict,row,col,sub_sqr_num)
 
+    dimension = len(sudoku_array)
+    
 
-
-    print(solve_recursive(row,col,sudoku_array,SUDOKU_OFFSET, possible_rows_dict, possible_cols_dict,possible_sub_square_dict,0))
     
 
 
 
-    print(f"set dict rows {possible_rows_dict}\nset dict cols {possible_cols_dict}\nset dict sub squares {possible_sub_square_dict}")
-    print(f"subsquare {get_subsquare(9,1,4)}")
-    print("sudoku array", sudoku_array)
-    pass
+
+    num_nodes = [0]
+
+    #print(solve_recursive(row,col,sudoku_array,SUDOKU_OFFSET, possible_rows_dict, possible_cols_dict,possible_sub_square_dict,0))
+
+    # if dimension == 9:
+
+    #     solution, num_nodes = solve_recursive(sudoku_array, num_nodes, sudoku_nine_elements)
+    # elif dimension == 16:
+    #     solution, num_nodes = solve_recursive(sudoku_array, num_nodes, sudoku_sixteen_elements)
+    # else:
+    #     solution, num_nodes = solve_recursive(sudoku_array, num_nodes, sudoku_twentyfive_elements)
+
+    solution, num_nodes = solve_recursive(sudoku_array, num_nodes)
+    
+    print(solution)
+    print(sudoku_array)
+    print(num_nodes)
+    #print(num_nodes)
+
+    return (solution, num_nodes)
+    
+
+
+
+    # print(f"set dict rows {possible_rows_dict}\nset dict cols {possible_cols_dict}\nset dict sub squares {possible_sub_square_dict}")
+    # print(f"subsquare {get_subsquare(9,1,4)}")
+    # print("sudoku array", sudoku_array)
+  
+
+def check_if_valid(sudoku_array, attempt, row, col):
+
+    row_values = sudoku_array[row]
+
+
+    col_values = []
+    
+    for i in range(len(row_values)):
+        col_values.append(sudoku_array[i][col])
+    
+
+    if attempt in row_values or attempt in col_values:
+        return False
+    
+    dimension = len(sudoku_array)
+
+    
+
+    sqrt = int(math.sqrt(dimension))
+   
+
+    top_row = (row // sqrt) * sqrt
+    first_col = (col // sqrt) * sqrt
+
+    
+
+    for i in range(top_row, top_row + int(math.sqrt(dimension))):
+        for j in range(first_col, first_col + int(math.sqrt(dimension))):
+            if sudoku_array[i][j] == attempt:
+                return False
+            
+    return True
+    
+
+
 
 def load_set_dicts(dimension, locations, sudoku_offset):
     dimension_set = set()
@@ -105,7 +170,8 @@ def get_subsquare(dimension,row,col):
 
     return subsquare_num
     
-def solve_recursive(row,col,sudoku_array,sudoku_offset, possible_rows_dict, possible_cols_dict,possible_sub_square_dict,num_nodes):
+# def solve_recursive(row,col,sudoku_array,sudoku_offset, possible_rows_dict, possible_cols_dict,possible_sub_square_dict,num_nodes):
+def solve_recursive(sudoku_array, num_nodes):
     """
     This method is the recursive method for solve
     @params
@@ -121,44 +187,65 @@ def solve_recursive(row,col,sudoku_array,sudoku_offset, possible_rows_dict, poss
     """
 
     dimension = len(sudoku_array)
-    num_nodes+=1
+    num_nodes[0] += 1
+    
+    
+
+
+    row, col = get_next_row_col(sudoku_array, 1)
+
+    if row is None:  
+        return True, num_nodes[0] 
+
+    for attempt in range(1, dimension+1):
+        
+       
+
+        if check_if_valid(sudoku_array, attempt, row, col):
+            sudoku_array[row][col] = attempt
+
+            if solve_recursive(sudoku_array, num_nodes)[0]:
+                return True, num_nodes[0]
+            
+        sudoku_array[row][col] = None
+
+    return False, num_nodes[0]
     #last iteration
     #when x==list_len and y==1 we will iterate that time and call with y=0
     
 
-    if(row==dimension and col==dimension):
-        # solution_list.append(sudoku_array)
-        #return solution_list,num_nodes
-        return sudoku_array, num_nodes
-    else:
+    # if(row==dimension and col==dimension):
+    #     # solution_list.append(sudoku_array)
+    #     #return solution_list,num_nodes
+    #     return sudoku_array, num_nodes
+    # elif:
 
-        sub_sqr_num = get_subsquare(dimension, row, col)
-        possible_vals = get_poss_vals(possible_rows_dict, possible_cols_dict, possible_sub_square_dict, row, col, sub_sqr_num)
+    #     sub_sqr_num = get_subsquare(dimension, row, col)
+    #     possible_vals = get_poss_vals(possible_rows_dict, possible_cols_dict, possible_sub_square_dict, row, col, sub_sqr_num)
         
-        next = get_next_row_col(sudoku_array, (row,col), sudoku_offset )
+    #     next = get_next_row_col(sudoku_array, (row,col), sudoku_offset )
         
-        next_row = next[0]
-        next_col = next[1]
+    #     next_row = next[0]
+    #     next_col = next[1]
 
         
-        for val in possible_vals:
+    #     for val in possible_vals:
 
-            sudoku_copy = copy.deepcopy(sudoku_array)
-            sudoku_copy[row - sudoku_offset][col - sudoku_offset] = val
+    #         sudoku_copy = copy.deepcopy(sudoku_array)
+    #         sudoku_copy[row - sudoku_offset][col - sudoku_offset] = val
             
 
-            possible_rows_dict[row].discard(val)
-            possible_cols_dict[col].discard(val)
-            possible_sub_square_dict[sub_sqr_num].discard(val)
+    #         possible_rows_dict[row].discard(val)
+    #         possible_cols_dict[col].discard(val)
+    #         possible_sub_square_dict[sub_sqr_num].discard(val)
 
             
-            temp = solve_recursive(next_row,next_col,sudoku_copy,sudoku_offset, possible_rows_dict, possible_cols_dict,possible_sub_square_dict,num_nodes)
+    #         temp = solve_recursive(next_row,next_col,sudoku_copy,sudoku_offset, possible_rows_dict, possible_cols_dict,possible_sub_square_dict,num_nodes)
     
-            if temp:
-                return temp
+    #         if temp:
+    #             return temp
             
-        return None
-
+    #     return None
 
 
 def get_poss_vals(possible_rows_dict, possible_cols_dict,possible_sub_square_dict,row,col,sub_sqr_num):
@@ -220,30 +307,41 @@ def get_dimension(locations):
     return dimension
 
 
-def get_next_row_col(sudoku_array, last_insert, sudoku_offset):
-    found = False
-    row = last_insert[0] 
-    col = last_insert[1]  
+# def get_next_row_col(sudoku_array, last_insert, sudoku_offset):
+#     found = False
+#     row = last_insert[0] 
+#     col = last_insert[1]  
 
-    if row == 1 and col == 1 and sudoku_array[row - sudoku_offset][col - sudoku_offset] == None:
-        return (row,col)
+    
 
-    while not found:
+#     while not found:
         
-        if col != 9:
-            col += 1
-            cur = sudoku_array[row - sudoku_offset][ col - sudoku_offset]
-        else: 
-            row += 1
-            col = 1
-            cur = sudoku_array[row - sudoku_offset][col - sudoku_offset]
+#         if col != len(sudoku_array):
+#             col += 1
+#             cur = sudoku_array[row - sudoku_offset][ col - sudoku_offset]
+#         else: 
+#             row += 1
+#             col = 1
+#             cur = sudoku_array[row - sudoku_offset][col - sudoku_offset]
 
-        if cur == None:
-            found = True
-    
-    return (row,col)
+#         if cur == None:
+#             found = True
 
-    
+#     return (row,col)
+
+
+def get_next_row_col(sudoku_array, offset):
+
+    for r in range(len(sudoku_array)):
+        for c in range(len(sudoku_array)):
+
+            #if this spot is empty
+            if sudoku_array[r][c] == None:
+                return r,c
+            
+    #if no more boxes to fill, puzzle complete
+    return None, None
+
 
         
 
