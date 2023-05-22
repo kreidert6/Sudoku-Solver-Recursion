@@ -173,21 +173,34 @@ def cuttoffs(sudoku_array_copy,row,col,possible_rows_dict_copy, possible_cols_di
     
     while changes:
         changes = False
+        final_poss_vals = {}
 
         for r in range(1, len(sudoku_array_copy)+1):
+            temp_dict = {}
             for c in range(1, len(sudoku_array_copy)+1):
+                
+
                 if sudoku_array_copy[r-1][c-1] is None:
                     sub_sqr_num_temp = get_subsquare(dimension, r, c)
                     possible_vals = get_poss_vals(possible_rows_dict_copy, possible_cols_dict_copy,possible_sub_square_dict_copy,r,c,sub_sqr_num_temp)
             # poss_vals_for_row_dict[r] = copy.deepcopy(possible_vals)
                     # poss_vals_for_row_dict[r] = possible_vals
+                    #
                     if len(possible_vals) == 0:
                         breakBranch = True
-                        continue
+                        return sudoku_array_copy,breakBranch
+                    #
                     #     return None, num_nodes[0]
+
+
+                    #should this go below the if statement??
+                    
+
+                   
                     if len(possible_vals) == 1:
                         changes = True
                         new_val = possible_vals.pop()
+                        
                         # poss_vals_for_row_dict[r].pop()
                         sudoku_array_copy[r-1][c-1] = new_val
                         possible_rows_dict_copy[r].discard(new_val)
@@ -195,15 +208,26 @@ def cuttoffs(sudoku_array_copy,row,col,possible_rows_dict_copy, possible_cols_di
                         possible_sub_square_dict_copy[sub_sqr_num_temp].discard(new_val)
                         # open_points_sub_queue_copy.remove((r+1,col))
 
-    # if(unique_num_return is not None):
-    #         unique_num = unique_num_return[0]
-    #         unique_num_row = unique_num_return[1]
-    #         sub_sqr_num_temp = get_subsquare(dimension,unique_num_row,col)
-    #         sudoku_array_copy[unique_num_row-1][col-1] = unique_num
-    #         possible_rows_dict_copy[unique_num_row].discard(unique_num)
-    #         possible_cols_dict_copy[col].discard(unique_num)
-    #         possible_sub_square_dict_copy[sub_sqr_num_temp].discard(unique_num)
-   
+                    temp_dict[c] = possible_vals
+                    
+
+            # unique_num_return =  find_unique_number(temp_dict,sudoku_array_copy,r)
+            
+            # if(unique_num_return is not None):
+            #     print("here")
+            #     unique_num = unique_num_return[0]
+            #     unique_num_col = unique_num_return[1]
+            #     sub_sqr_num_temp = get_subsquare(dimension,r,unique_num_col)
+            #     sudoku_array_copy[r-1][unique_num_col-1] = unique_num
+            #     changes = True
+            #     possible_rows_dict_copy[r].discard(unique_num)
+            #     possible_cols_dict_copy[unique_num_col].discard(unique_num)
+            #     possible_sub_square_dict_copy[sub_sqr_num_temp].discard(unique_num)
+            #     temp_dict[unique_num_col].discard(unique_num)
+
+    
+        
+    
     return sudoku_array_copy,breakBranch
     
     """
@@ -232,7 +256,6 @@ def cuttoffs(sudoku_array_copy,row,col,possible_rows_dict_copy, possible_cols_di
                 possible_sub_square_dict_copy[sub_sqr_num_temp].discard(new_val)
                 # open_points_sub_queue_copy.remove((r+1,col))
 
-    unique_num_return =  find_unique_number(poss_vals_for_row_dict,sudoku_array_copy,col)
     
     
 
