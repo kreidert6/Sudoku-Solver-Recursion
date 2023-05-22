@@ -178,8 +178,10 @@ def cuttoffs(sudoku_array_copy,row,col,possible_rows_dict_copy, possible_cols_di
         for r in range(1, len(sudoku_array_copy)+1):
             temp_dict = {}
             for c in range(1, len(sudoku_array_copy)+1):
+                # if r == 9 and c == 3:
+                #     print("stop")
                 
-
+               
                 if sudoku_array_copy[r-1][c-1] is None:
                     sub_sqr_num_temp = get_subsquare(dimension, r, c)
                     possible_vals = get_poss_vals(possible_rows_dict_copy, possible_cols_dict_copy,possible_sub_square_dict_copy,r,c,sub_sqr_num_temp)
@@ -207,23 +209,32 @@ def cuttoffs(sudoku_array_copy,row,col,possible_rows_dict_copy, possible_cols_di
                         possible_cols_dict_copy[c].discard(new_val)
                         possible_sub_square_dict_copy[sub_sqr_num_temp].discard(new_val)
                         # open_points_sub_queue_copy.remove((r+1,col))
+                        for item in temp_dict:
+                            
+                            temp_dict[item].discard(new_val)
+
+
+                        
+                        
 
                     temp_dict[c] = possible_vals
                     
 
-            # unique_num_return =  find_unique_number(temp_dict,sudoku_array_copy,r)
+            unique_num_return =  find_unique_number(temp_dict,sudoku_array_copy,r)
             
-            # if(unique_num_return is not None):
-            #     print("here")
-            #     unique_num = unique_num_return[0]
-            #     unique_num_col = unique_num_return[1]
-            #     sub_sqr_num_temp = get_subsquare(dimension,r,unique_num_col)
-            #     sudoku_array_copy[r-1][unique_num_col-1] = unique_num
-            #     changes = True
-            #     possible_rows_dict_copy[r].discard(unique_num)
-            #     possible_cols_dict_copy[unique_num_col].discard(unique_num)
-            #     possible_sub_square_dict_copy[sub_sqr_num_temp].discard(unique_num)
-            #     temp_dict[unique_num_col].discard(unique_num)
+            if(unique_num_return is not None):
+                
+               
+                unique_num = unique_num_return[0]
+                unique_num_col = unique_num_return[1]
+                
+                sub_sqr_num_temp = get_subsquare(dimension,r,unique_num_col)
+                sudoku_array_copy[r-1][unique_num_col-1] = unique_num
+                changes = True
+                possible_rows_dict_copy[r].discard(unique_num)
+                possible_cols_dict_copy[unique_num_col].discard(unique_num)
+                possible_sub_square_dict_copy[sub_sqr_num_temp].discard(unique_num)
+                temp_dict[unique_num_col].discard(unique_num)
 
     
         
