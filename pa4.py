@@ -181,24 +181,16 @@ def cuttoffs(sudoku_array_copy,row,col,possible_rows_dict_copy, possible_cols_di
                 # if r == 9 and c == 3:
                 #     print("stop")
                 
-               
                 if sudoku_array_copy[r-1][c-1] is None:
                     sub_sqr_num_temp = get_subsquare(dimension, r, c)
                     possible_vals = get_poss_vals(possible_rows_dict_copy, possible_cols_dict_copy,possible_sub_square_dict_copy,r,c,sub_sqr_num_temp)
-            # poss_vals_for_row_dict[r] = copy.deepcopy(possible_vals)
-                    # poss_vals_for_row_dict[r] = possible_vals
+            
                     #
                     if len(possible_vals) == 0:
                         breakBranch = True
                         return sudoku_array_copy,breakBranch
-                    #
-                    #     return None, num_nodes[0]
-
-
-                    #should this go below the if statement??
-                    
-
                    
+                    
                     if len(possible_vals) == 1:
                         changes = True
                         new_val = possible_vals.pop()
@@ -214,7 +206,6 @@ def cuttoffs(sudoku_array_copy,row,col,possible_rows_dict_copy, possible_cols_di
                             temp_dict[item].discard(new_val)
 
 
-                        
                         
 
                     temp_dict[c] = possible_vals
@@ -236,83 +227,84 @@ def cuttoffs(sudoku_array_copy,row,col,possible_rows_dict_copy, possible_cols_di
                 possible_sub_square_dict_copy[sub_sqr_num_temp].discard(unique_num)
                 temp_dict[unique_num_col].discard(unique_num)
 
-    
+        for c in range(1, len(sudoku_array_copy)+1):
+            temp_dict = {}
+            for r in range(1, len(sudoku_array_copy)+1):
+             
+                if sudoku_array_copy[r-1][c-1] is None:
+                    sub_sqr_num_temp = get_subsquare(dimension, r, c)
+                    possible_vals = get_poss_vals(possible_rows_dict_copy, possible_cols_dict_copy,possible_sub_square_dict_copy,r,c,sub_sqr_num_temp)
+            
+                    temp_dict[r] = possible_vals
+                    
+
+            unique_num_return =  find_unique_number(temp_dict,sudoku_array_copy,c)
+            
+            if(unique_num_return is not None):
+                
+               
+                unique_num = unique_num_return[0]
+                unique_num_row = unique_num_return[1]
+                
+                sub_sqr_num_temp = get_subsquare(dimension,unique_num_row,c)
+                sudoku_array_copy[unique_num_row-1][c-1] = unique_num
+                changes = True
+                possible_rows_dict_copy[unique_num_row].discard(unique_num)
+                possible_cols_dict_copy[c].discard(unique_num)
+                possible_sub_square_dict_copy[sub_sqr_num_temp].discard(unique_num)
+                temp_dict[unique_num_row].discard(unique_num)
+
+
+
+
+
+        # #subsquare cutoff
+        # subsqr 1   -   row is 1
+        # subsqr 2   -   row is 1 
+        # subsqr 3   -   row is 1
+        # subsqr 4   -   row is 4
+        # subsqr 5   -   row is 4
+        # subsqr 6   -   row is 4 
+        # subsqr 7   -   row is 5
+        # subsqr 8   -   row is 5
+        # for i in range(1, dimension + 1):
+        #     sqrt = int(math.sqrt(dimension))
+        #     top_row = (((row-1) // sqrt) * sqrt)+1
+        #     first_col = (((col-1) // sqrt) * sqrt)+1
+
+        #     for r in range(top_row, top_row+sqrt):
+        #         temp_dict = {}
+        #         for c in range(first_col, first_col+ sqrt):
+                
+        #             if sudoku_array_copy[r-1][c-1] is None:
+        #                 sub_sqr_num_temp = get_subsquare(dimension, r, c)
+        #                 possible_vals = get_poss_vals(possible_rows_dict_copy, possible_cols_dict_copy,possible_sub_square_dict_copy,r,c,sub_sqr_num_temp)
+                
+        #                 temp_dict[(r, c)] = possible_vals
+                        
+
+        #         unique_num_return =  find_unique_number(temp_dict,sudoku_array_copy,c)
+                
+        #         if(unique_num_return is not None):
+                    
+                
+        #             unique_num = unique_num_return[0]
+        #             unique_num_row = unique_num_return[1]
+                    
+        #             sub_sqr_num_temp = get_subsquare(dimension,unique_num_row,c)
+        #             sudoku_array_copy[unique_num_row-1][c-1] = unique_num
+        #             changes = True
+        #             possible_rows_dict_copy[unique_num_row].discard(unique_num)
+        #             possible_cols_dict_copy[c].discard(unique_num)
+        #             possible_sub_square_dict_copy[sub_sqr_num_temp].discard(unique_num)
+        #             temp_dict[unique_num_row].discard(unique_num)
+            
         
+
     
     return sudoku_array_copy,breakBranch
     
-    """
-    
-
-    #poss_vals_for_row will be a dictonary with 1-9 and the value will be the potnetial vals for that row number
-    
-    poss_vals_for_row_dict = {}
-    dimension = len(sudoku_array_copy)
-    for r in range(1,len(sudoku_array_copy)+1):
-        if sudoku_array_copy[r-1][col-1] == None:
-            sub_sqr_num_temp = get_subsquare(dimension, r, col)
-            possible_vals = get_poss_vals(possible_rows_dict_copy, possible_cols_dict_copy,possible_sub_square_dict_copy,r,col,sub_sqr_num_temp)
-            # poss_vals_for_row_dict[r] = copy.deepcopy(possible_vals)
-            poss_vals_for_row_dict[r] = possible_vals
-            if len(possible_vals) == 0:
-                breakBranch = True
-                continue
-            #     return None, num_nodes[0]
-            if len(possible_vals) == 1:
-                new_val = possible_vals.pop()
-                # poss_vals_for_row_dict[r].pop()
-                sudoku_array_copy[r-1][col-1] = new_val
-                possible_rows_dict_copy[r].discard(new_val)
-                possible_cols_dict_copy[col].discard(new_val)
-                possible_sub_square_dict_copy[sub_sqr_num_temp].discard(new_val)
-                # open_points_sub_queue_copy.remove((r+1,col))
-
-    
-    
-
-
-    if(not breakBranch):
-        for c in range(1,len(sudoku_array_copy)+1):
-            if sudoku_array_copy[row-1][c-1] == None:
-                sub_sqr_num_temp = get_subsquare(dimension, row, c)
-                possible_vals = get_poss_vals(possible_rows_dict_copy, possible_cols_dict_copy,possible_sub_square_dict_copy,row,c,sub_sqr_num_temp)
-                if len(possible_vals) == 0:
-                    breakBranch = True
-                    continue
-                #    return None, num_nodes[0]
-                if len(possible_vals) == 1:
-                    new_val = possible_vals.pop()
-                    sudoku_array_copy[row-1][c-1] = new_val
-                    possible_rows_dict_copy[row].discard(new_val)
-                    possible_cols_dict_copy[c].discard(new_val)
-                    possible_sub_square_dict_copy[sub_sqr_num_temp].discard(new_val)
-                    # open_points_sub_queue_copy.remove((row,c+1))
-
-    if(not breakBranch):
-        sqrt = int(math.sqrt(dimension))
-        top_row = (((row-1) // sqrt) * sqrt)+1
-        first_col = (((col-1) // sqrt) * sqrt)+1
-
-        for sub_row in range(top_row, top_row+sqrt):
-            for sub_col in range(first_col, first_col+ sqrt):
-                
-                if sudoku_array_copy[sub_row-1][sub_col-1] == None:
-                    sub_sqr_num_temp = get_subsquare(dimension, sub_row, sub_col)
-                    possible_vals = get_poss_vals(possible_rows_dict_copy, possible_cols_dict_copy,possible_sub_square_dict_copy, sub_row, sub_col,sub_sqr_num_temp)
-                    if len(possible_vals) == 0:
-                        breakBranch = True
-                        continue
-                    #     return False, num_nodes[0]
-                    if len(possible_vals) == 1:
-                        new_val = possible_vals.pop()
-                        sudoku_array_copy[sub_row-1][sub_col-1] = new_val
-                        possible_rows_dict_copy[sub_row].discard(new_val)
-                        possible_cols_dict_copy[sub_col].discard(new_val)
-                        possible_sub_square_dict_copy[sub_sqr_num_temp].discard(new_val)
-
-    """
-    
-        
+   
 
 
 def find_unique_number(dictionary,sudoku_array,col):
