@@ -22,6 +22,7 @@ def solve(size, filename):
     #dictionary where key is the tuple location and val is the value at that location
     locations = get_locations(filename)
 
+    #load the sudoku board with the initial starting values
     sudoku_array_return = load_sudoku_array(SUDOKU_OFFSET,locations)
     sudoku_array = sudoku_array_return[0]
     dimension = sudoku_array_return[1]
@@ -29,6 +30,7 @@ def solve(size, filename):
 
     #part 2 --> set up recursion and solve
 
+    #find the possible values for the possible corresponding row, column, subsqr alone
     sets = load_set_dicts(dimension,locations,SUDOKU_OFFSET)
     possible_rows_dict = sets[0]
     possible_cols_dict = sets[1]
@@ -40,13 +42,17 @@ def solve(size, filename):
         25:[(1,1),(1,6),(1,11),(1,16),(1,21),(6,1),(6,6),(6,11),(6,16),(6,21),(11,1),(11,6),(11,11),(11,16),(11,21),(16,1),(16,6),(16,11),(16,16),(16,21),
             (21,1),(21,6),(21,11),(21,16),(21,21)]}
 
+    #grab next square to insert into
     row,col = get_next_row_col(sudoku_array,SUDOKU_OFFSET)
     dimension = len(sudoku_array)
     
     num_nodes = [0]
 
+
+    #call cutoffs before we start any guessing
     sudoku_array, breakBranch= cuttoffs(sudoku_array,row,col,possible_rows_dict,possible_cols_dict,possible_sub_square_dict,subsquare_starting_cord)
 
+    #call the function that starts guessing
     solution, num_nodes = solve_recursive(sudoku_array, num_nodes, possible_rows_dict, possible_cols_dict, possible_sub_square_dict,subsquare_starting_cord)
     print(solution)
     print(num_nodes)
@@ -71,13 +77,18 @@ def solve_recursive(sudoku_array, num_nodes, possible_rows_dict, possible_cols_d
     num_nodes[0] += 1
     row, col = get_next_row_col(sudoku_array, 1)
     
+    #if the board is complete (no more empty squares)
     if row is None:  
         return sudoku_array, num_nodes[0] 
 
     sub_sqr_num = get_subsquare(dimension, row, col)
 
+
+    #numbers that work for this particular square at this instance
     possible_vals = get_poss_vals(possible_rows_dict, possible_cols_dict,possible_sub_square_dict,row,col,sub_sqr_num)
     
+    
+    #we are attempting each value from the list of possible values at this particular box
     for attempt in possible_vals:
         breakBranch = False
         sudoku_array_copy = copy.deepcopy(sudoku_array)
@@ -88,10 +99,14 @@ def solve_recursive(sudoku_array, num_nodes, possible_rows_dict, possible_cols_d
         possible_cols_dict_copy[col].discard(attempt)
         possible_sub_square_dict_copy[sub_sqr_num].discard(attempt)
 
+
+        #assign to sudoku board
         sudoku_array_copy[row-1][col-1] = attempt
 
+        #since we changed the board, check for new cutoffs
         sudoku_array_copy, breakBranch= cuttoffs(sudoku_array_copy,row,col,possible_rows_dict_copy,possible_cols_dict_copy,possible_sub_square_dict_copy,subsquare_starting_cord)
         return_array = []
+
         if(not breakBranch):
             return_array,count = solve_recursive(sudoku_array_copy, num_nodes, possible_rows_dict_copy, possible_cols_dict_copy, possible_sub_square_dict_copy,subsquare_starting_cord)
         if return_array:
@@ -110,20 +125,27 @@ def cuttoffs(sudoku_array_copy,row,col,possible_rows_dict_copy, possible_cols_di
     dimension = len(sudoku_array_copy)
     
 
+    #this will continue until it completes an iteration without changing any squares on the board
     while changes:
         changes = False
-        final_poss_vals = {}
+        
+
+        #this loop completes the cutoffs for each row
         for r in range(1, len(sudoku_array_copy)+1):
             temp_dict = {}
             for c in range(1, len(sudoku_array_copy)+1):
                 if sudoku_array_copy[r-1][c-1] is None:
                     sub_sqr_num_temp = get_subsquare(dimension, r, c)
+
+                    #evaluate new possible values for this specific box
                     possible_vals = get_poss_vals(possible_rows_dict_copy, possible_cols_dict_copy,possible_sub_square_dict_copy,r,c,sub_sqr_num_temp)
 
+                    #if there are no possible valid values, break
                     if len(possible_vals) == 0:
                         breakBranch = True
                         return sudoku_array_copy,breakBranch
 
+                    #if there is only one possible valid value, immediately place it in the board
                     if len(possible_vals) == 1:
                         changes = True
                         new_val = possible_vals.pop()
@@ -132,12 +154,18 @@ def cuttoffs(sudoku_array_copy,row,col,possible_rows_dict_copy, possible_cols_di
                         possible_rows_dict_copy[r].discard(new_val)
                         possible_cols_dict_copy[c].discard(new_val)
                         possible_sub_square_dict_copy[sub_sqr_num_temp].discard(new_val)
+
+                        #remove the item from values within the temp_dict
                         for item in temp_dict:                            
                             temp_dict[item].discard(new_val)
 
                     temp_dict[c] = possible_vals 
+
+            #try to return a unique number within the possible values of all boxes within a row
             unique_num_return =  find_unique_number(temp_dict,sudoku_array_copy,r)
             
+
+            #cutoff 2 (if theres is a unique possible value)
             if(unique_num_return is not None): 
                 unique_num = unique_num_return[0]
                 unique_num_col = unique_num_return[1]
@@ -149,19 +177,25 @@ def cuttoffs(sudoku_array_copy,row,col,possible_rows_dict_copy, possible_cols_di
                 possible_sub_square_dict_copy[sub_sqr_num_temp].discard(unique_num)
                 temp_dict[unique_num_col].discard(unique_num)
 
+
+        #this loop checks for cutoffs for each column
         for c in range(1, len(sudoku_array_copy)+1):
             temp_dict = {}
             for r in range(1, len(sudoku_array_copy)+1):
              
                 if sudoku_array_copy[r-1][c-1] is None:
                     sub_sqr_num_temp = get_subsquare(dimension, r, c)
+
+                    #evaluate new possible values for this specific box
                     possible_vals = get_poss_vals(possible_rows_dict_copy, possible_cols_dict_copy,possible_sub_square_dict_copy,r,c,sub_sqr_num_temp)
             
                     temp_dict[r] = possible_vals
                     
-
+            #try to return a unique number within the possible values of all boxes within a column
             unique_num_return =  find_unique_number(temp_dict,sudoku_array_copy,c)
             
+
+            #cutoff 2 (if theres is a unique possible value)
             if(unique_num_return is not None):
                 
                
@@ -176,20 +210,28 @@ def cuttoffs(sudoku_array_copy,row,col,possible_rows_dict_copy, possible_cols_di
                 possible_sub_square_dict_copy[sub_sqr_num_temp].discard(unique_num)
                 temp_dict[unique_num_row].discard(unique_num)
 
+
+
+        #grabs all the starting coordinates of the top left box in each subsquare
         list_to_iterate = subsquare_starting_cord[dimension]
         sqrt = int(math.sqrt(dimension))
+
+        #this loop checks for cutoffs for each subsquare
         for cord in list_to_iterate:
             temp_dict = {}
             for r in range(cord[0], cord[0]+sqrt):
                 for c in range(cord[1], cord[1]+ sqrt):
                     if sudoku_array_copy[r-1][c-1] is None:
                         sub_sqr_num_temp = get_subsquare(dimension, r, c)
+
+                        #evaluate new possible values for this specific box
                         possible_vals = get_poss_vals(possible_rows_dict_copy, possible_cols_dict_copy,possible_sub_square_dict_copy,r,c,sub_sqr_num_temp)
                         temp_dict[r,c] = possible_vals
                     
-
+            #try to return a unique number within the possible values of all boxes within a subsqr
             unique_num_return =  find_unique_number(temp_dict,sudoku_array_copy,c)
             
+            #cutoff 2 (if theres is a unique possible value)
             if(unique_num_return is not None):
                 
                 unique_num = unique_num_return[0]
@@ -334,30 +376,14 @@ def get_dimension(locations):
     return dimension
 
 
-# def get_next_row_col(sudoku_array, last_insert, sudoku_offset):
-#     found = False
-#     row = last_insert[0] 
-#     col = last_insert[1]  
 
-    
-
-#     while not found:
-        
-#         if col != len(sudoku_array):
-#             col += 1
-#             cur = sudoku_array[row - sudoku_offset][ col - sudoku_offset]
-#         else: 
-#             row += 1
-#             col = 1
-#             cur = sudoku_array[row - sudoku_offset][col - sudoku_offset]
-
-#         if cur == None:
-#             found = True
-
-#     return (row,col)
 
 
 def get_next_row_col(sudoku_array, offset):
+    """
+    This method returns the coordinate of the next square that doesn't hold a value yet
+    
+    """
 
     for r in range(len(sudoku_array)):
         for c in range(len(sudoku_array)):
@@ -379,8 +405,4 @@ if __name__ == "__main__":
     SIZE = 9
     FILENAME = "p1.txt"
     solution = solve(SIZE, FILENAME)
-    # if not solution[0]:
-    #     print("No solution")
-    # else:
-    #     print(solution[0])
-    # print(f"Nodes generated = {solution[1]}")
+   
